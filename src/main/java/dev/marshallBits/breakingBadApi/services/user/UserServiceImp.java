@@ -6,6 +6,7 @@ import dev.marshallBits.breakingBadApi.models.UserRole;
 import dev.marshallBits.breakingBadApi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,6 +16,9 @@ public class UserServiceImp implements UserSercive{
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @Override
     public User registerUser(CreateUserDTO user) {
         if(userRepository.findByUsername(user.getUsername()).isPresent()){
@@ -23,7 +27,7 @@ public class UserServiceImp implements UserSercive{
        User newUser = new User();
         newUser.setUserRole(UserRole.ROLE_USER);
         newUser.setName(user.getName());
-        newUser.setPassword(user.getPassword());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setUsername(user.getUsername());
         newUser.setCi(user.getCi());
         newUser.setMail(user.getMail());
