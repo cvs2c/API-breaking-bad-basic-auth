@@ -1,6 +1,8 @@
 package dev.marshallBits.breakingBadApi.controllers;
 
+import dev.marshallBits.breakingBadApi.dto.CreateLoginUserDTO;
 import dev.marshallBits.breakingBadApi.dto.CreateUserDTO;
+import dev.marshallBits.breakingBadApi.dto.LoginResponseDTO;
 import dev.marshallBits.breakingBadApi.models.User;
 import dev.marshallBits.breakingBadApi.services.user.UserServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,12 @@ public class UserAuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public User singUp(@RequestBody CreateUserDTO user){
         return userService.registerUser(user);
+    }
+
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public LoginResponseDTO login(@RequestBody CreateLoginUserDTO user){
+        return userService.authenticateUser(user);
     }
 
 }

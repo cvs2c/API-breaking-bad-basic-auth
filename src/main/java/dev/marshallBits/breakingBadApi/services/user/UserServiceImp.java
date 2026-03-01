@@ -1,9 +1,12 @@
 package dev.marshallBits.breakingBadApi.services.user;
 
+import dev.marshallBits.breakingBadApi.dto.CreateLoginUserDTO;
 import dev.marshallBits.breakingBadApi.dto.CreateUserDTO;
+import dev.marshallBits.breakingBadApi.dto.LoginResponseDTO;
 import dev.marshallBits.breakingBadApi.models.User;
 import dev.marshallBits.breakingBadApi.models.UserRole;
 import dev.marshallBits.breakingBadApi.repositories.UserRepository;
+import dev.marshallBits.breakingBadApi.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +21,9 @@ public class UserServiceImp implements UserSercive{
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    JwtUtil jwtUtil;
 
     @Override
     public User registerUser(CreateUserDTO user) {
@@ -35,6 +41,23 @@ public class UserServiceImp implements UserSercive{
 
         return userRepository.save(newUser);
 
+    }
+
+    @Override
+    public LoginResponseDTO authenticateUser(CreateLoginUserDTO user) {
+       User existingUser = userRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario o contraseña inconrrecto"));
+
+       //La contraseña no es correcta
+        if(!passwordEncoder.matches(user.getPassword(), existingUser.getPassword())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario o contraseña incorrecta");
+        }
+
+        String token = jwtUtil.generateTocken(existingUser.getUsername(), existingUser.getUserRole().name());
+
+        return LoginResponseDTO.builder()
+                .token(token)
+                .username(existingUser.getUsername())
+                .build();
     }
 
 }

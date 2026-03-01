@@ -20,6 +20,7 @@ public class SecurityConfig {
                         //Primer filtro
                         .requestMatchers("/api/characters").permitAll()
                         .requestMatchers("/api/auth/singup").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());
