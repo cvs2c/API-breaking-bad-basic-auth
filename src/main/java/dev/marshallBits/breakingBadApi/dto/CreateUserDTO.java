@@ -1,9 +1,6 @@
 package dev.marshallBits.breakingBadApi.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,13 +16,13 @@ public class CreateUserDTO {
 
     @NotNull
     @NotBlank
+    @Pattern( regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&_]{5,}$", message = "La contraseña de ser al menos de 5 caracteres, contener mayúscula, minúscula, un carácter especial y un numero")
     private String password;
 
     @Email
     private String mail;
 
     @NotNull
-    @NotEmpty
     private Integer ci;
 
     @NotNull
@@ -33,7 +30,8 @@ public class CreateUserDTO {
     private String phone;
 
     @NotNull
-    @NotBlank
+    @NotBlank(message = "El username no puede estar vacío")
+    @Size(min = 1, max = 100)
     private String username;
 
 }

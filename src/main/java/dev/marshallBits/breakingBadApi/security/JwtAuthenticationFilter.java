@@ -1,5 +1,6 @@
 package dev.marshallBits.breakingBadApi.security;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,18 +33,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //Verifica que el token no sea nulo y que no exista nada creado
         if(token != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            String username = jwtUtil.getUsernameFromToken(token);
-            String role = jwtUtil.getRoleFromToken(token);
+            try {
+                String username = jwtUtil.getUsernameFromToken(token);
+                String role = jwtUtil.getRoleFromToken(token);
 
-            // crea la info para generar el contexto y que spring security sepa quien hace la peticion y que puede hacer
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    Collections.singletonList(new SimpleGrantedAuthority(role))
+                // crea la info para generar el contexto y que spring security sepa quien hace la peticion y que puede hacer
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        Collections.singletonList(new SimpleGrantedAuthority(role))
 
-            );
+                );
 
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }catch (TokenExpiredException e){
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Tu session ha caducado, debes volver a loguearte");
+                return;
+            }
 
         }
 
